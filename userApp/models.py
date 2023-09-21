@@ -35,7 +35,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Users'
     
     def get_short_name(self):
-        if (len(self.full_name) > 8):
+        if (len(self.full_name) == 0):
             return self.email.split('@')[0].capitalize()
         
         else:
