@@ -18,8 +18,8 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=30)
-    phone_number = models.CharField(max_length=15)  # Add the phone_number field
+    full_name = models.CharField(max_length=30,default='')
+    phone_number = models.CharField(max_length=15,blank=True,null=True)  # Add the phone_number field
     avatar = models.CharField(max_length=500, blank=True, null=True)  # Add the avatar field
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -33,9 +33,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
-
-    def __str__(self):
-        return self.email.split('@')[0].upper()
     
     def get_short_name(self):
-        return self.full_name.split('@')[0] or self.email.split('@')[0].capitalize()
+        if (len(self.full_name) == 0):
+            return self.email.split('@')[0].capitalize()
+        
+        else:
+            return self.full_name.split(' ')[0]
