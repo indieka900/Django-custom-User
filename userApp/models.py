@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.core.validators import FileExtensionValidator as _
+import os
+import subprocess
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -47,17 +49,44 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         
         else:
             return self.full_name.split(' ')[0]
-        
+
+
+class CourseCategories(models.Model):
+    title = models.CharField(max_length=50,unique=True)
+    description = models.TextField(max_length=300)
+    order = models.SmallIntegerField()
+    
+    def __str__(self):
+        return self.title       
         
 class Course(models.Model):
-    name = models.CharField(max_length=50,)
-    description = models.TextField(max_length=1000)
-    type_id = models.IntegerField()
-    price = models.DecimalField()
-    video_length = models.DecimalField()
+    name = models.CharField(max_length=50,unique=True)
+    description = models.TextField(max_length=1000,blank=True,null=True)
+    type_id = models.SmallIntegerField(null=True,blank=True)
+    follow = models.IntegerField(null=True,blank=True)
+    lesson_number = models.IntegerField(null=True,blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    score = models.DecimalField(max_digits=2, decimal_places=2,null=True,blank=True)
+    video_length = models.DecimalField(max_digits=10, decimal_places=2,default=5, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    img = models.ImageField(upload_to='images_uploaded',null=True)
-    video = models.FileField(upload_to='videos_uploaded',null=True,
+    img = models.ImageField(upload_to='images_uploaded',null=True,blank=True)
+    video = models.FileField(upload_to='videos_uploaded',null=True,blank=True,
         validators=[_(allowed_extensions=['MOV','avi','mp4','webm','mkv'])])
-    user = models.ForeignKey(CustomUser,on_delete= models.CASCADE)
+    Teacher = models.ForeignKey(CustomUser,on_delete= models.CASCADE)
+    
+    def __str__(self):
+        return self.name
+    
+    def calculate_video_length(self):
+        """Calculates the length of the video file and stores it in the database."""
+
+        video_path = self.video.path
+
+        command = ['ffprobe', '-i', video_path, '-show_entries', 'format=duration']
+        output = subprocess.check_output(command)
+
+        duration = float(output.decode().split('=')[1])
+
+        self.video_length = duration
+        self.save()

@@ -1,13 +1,24 @@
 from rest_framework.views import APIView
-from .models import CustomUser
-from .serializers import CustomUserSerializer
+from .models import CustomUser, Course
+from .serializers import CustomUserSerializer,CourseSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login
+from rest_framework.permissions import IsAuthenticated
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_lesson(request):
+    # lesson = Lesson.objects.get(pk=pk)
 
+    if request.user.is_authenticated:
+        queryset = Course.objects.all() 
+        serializer_class = CourseSerializer(queryset,many=True)
+        return Response(serializer_class.data)
+
+    return Response({"Error":"Not allowed"})
             
 
 class CustomUserList(APIView):

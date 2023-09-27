@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, Course, CourseCategories
 
 class UserAdminConfig(UserAdmin):
     ordering = ('-date_joined',)
@@ -20,5 +20,7 @@ class UserAdminConfig(UserAdmin):
     )
 
 admin.site.register(CustomUser,UserAdminConfig)
+admin.site.register(Course)
+admin.site.register(CourseCategories)
 
 # Register your models here.
