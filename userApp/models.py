@@ -57,11 +57,16 @@ class CourseCategories(models.Model):
     order = models.SmallIntegerField()
     
     def __str__(self):
-        return self.title       
+        return self.title  
+    
+    class Meta:
+        verbose_name = 'Course Category'
+        verbose_name_plural = 'Course Categories'     
         
 class Course(models.Model):
     name = models.CharField(max_length=50,unique=True)
     description = models.TextField(max_length=1000,blank=True,null=True)
+    Category = models.ForeignKey(CourseCategories,on_delete= models.CASCADE)
     type_id = models.SmallIntegerField(null=True,blank=True)
     follow = models.IntegerField(null=True,blank=True)
     lesson_number = models.IntegerField(null=True,blank=True)
@@ -74,6 +79,7 @@ class Course(models.Model):
     video = models.FileField(upload_to='videos_uploaded',null=True,blank=True,
         validators=[_(allowed_extensions=['MOV','avi','mp4','webm','mkv'])])
     Teacher = models.ForeignKey(CustomUser,on_delete= models.CASCADE)
+    
     
     def __str__(self):
         return self.name
